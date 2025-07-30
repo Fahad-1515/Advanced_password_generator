@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Password Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .password-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .password-display {
+            font-size: 18px;
+            font-family: monospace;
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .toggle-visibility {
+            margin-left: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #3498db;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+        }
+        
+        .copy-btn {
+            background-color: #2ecc71;
+        }
+        
+        .copy-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .save-btn {
+            background-color: #9b59b6;
+        }
+        
+        .save-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .strength-meter {
+            height: 5px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .history {
+            margin-top: 30px;
+        }
+        
+        .history h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-name {
+            font-weight: 600;
+        }
+        
+        .history-password {
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .history-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+        }
+        
+        .empty-history {
+            color: #7f8c8d;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Password Manager</h1>
+        
+        <div class="form-group">
+            <label for="length">Password Length</label>
+            <input type="number" id="length" min="1" max="50" value="12">
+        </div>
+        
+        <div class="form-group">
+            <label>Character Types</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="lowercase" checked>
+                    <label for="lowercase">Lowercase (a-z)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="uppercase" checked>
+                    <label for="uppercase">Uppercase (A-Z)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="numbers" checked>
+                    <label for="numbers">Numbers (0-9)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="symbols" checked>
+                    <label for="symbols">Symbols (!@#$...)</label>
+                </div>
+            </div>
+        </div>
+        
+        <button id="generate-btn">Generate Password</button>
+        
+        <div class="result" id="result" style="display: none;">
+            <div class="password-container">
+                <input type="password" class="password-display" id="password-display" readonly>
+                <button class="toggle-visibility" id="toggle-visibility">Show</button>
+            </div>
+            <div class="strength-meter">
+                <div class="strength-bar" id="strength-bar"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-name">Save as (optional)</label>
+                <input type="text" id="password-name" placeholder="e.g. 'Email Account'">
+            </div>
+            <div class="action-buttons">
+                <button class="copy-btn" id="copy-btn">Copy Password</button>
+                <button class="save-btn" id="save-btn">Save Password</button>
+            </div>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="history">
+            <h2>Password History</h2>
+            <div id="history-list">
+                <!-- History items will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load history when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+        });
+
+        // Generate password button
+        document.getElementById('generate-btn').addEventListener('click', function() {
+            const length = parseInt(document.getElementById('length').value);
+            const includeLowercase = document.getElementById('lowercase').checked;
+            const includeUppercase = document.getElementById('uppercase').checked;
+            const includeNumbers = document.getElementById('numbers').checked;
+            const includeSymbols = document.getElementById('symbols').checked;
+            
+            const password = generatePassword(
+                length,
+                includeLowercase,
+                includeUppercase,
+                includeNumbers,
+                includeSymbols
+            );
+            
+            const errorElement = document.getElementById('error');
+            const resultElement = document.getElementById('result');
+            const passwordDisplay = document.getElementById('password-display');
+            const strengthBar = document.getElementById('strength-bar');
+            
+            if (password.startsWith('(')) {
+                // This is an error message
+                errorElement.textContent = password;
+                resultElement.style.display = 'none';
+            } else {
+                errorElement.textContent = '';
+                passwordDisplay.value = password;
+                resultElement.style.display = 'block';
+                
+                // Calculate password strength
+                const strength = calculatePasswordStrength(password);
+                strengthBar.style.width = strength.percentage + '%';
+                strengthBar.style.backgroundColor = strength.color;
+            }
+        });
+        
+        // Toggle password visibility
+        document.getElementById('toggle-visibility').addEventListener('click', function() {
+            const passwordDisplay = document.getElementById('password-display');
+            const toggleBtn = document.getElementById('toggle-visibility');
+            
+            if (passwordDisplay.type === 'password') {
+                passwordDisplay.type = 'text';
+                toggleBtn.textContent = 'Hide';
+            } else {
+                passwordDisplay.type = 'password';
+                toggleBtn.textContent = 'Show';
+            }
+        });
+        
+        // Copy password button
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const password = document.getElementById('password-display').value;
+            navigator.clipboard.writeText(password).then(function() {
+                const copyBtn = document.getElementById('copy-btn');
+                copyBtn.textContent = 'Copied!';
+                setTimeout(function() {
+                    copyBtn.textContent = 'Copy Password';
+                }, 2000);
+            });
+        });
+        
+        // Save password button
+        document.getElementById('save-btn').addEventListener('click', function() {
+            const password = document.getElementById('password-display').value;
+            const name = document.getElementById('password-name').value || 'Unnamed Password';
+            
+            if (!password) {
+                showError('No password to save');
+                return;
+            }
+            
+            savePassword(name, password);
+            loadHistory();
+            
+            // Reset the save form
+            document.getElementById('password-name').value = '';
+            
+            // Show confirmation
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.textContent = 'Saved!';
+            setTimeout(function() {
+                saveBtn.textContent = 'Save Password';
+            }, 2000);
+        });
+        
+        function generatePassword(
+            length,
+            includeLowercase,
+            includeUppercase,
+            includeNumbers,
+            includeSymbols
+        ) {
+            const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+            const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numberChars = "0123456789";
+            const symbolChars = "!@#$%^&*()_+-=";
+            let allowedChars = "";
+            let password = "";
+            
+            allowedChars += includeLowercase ? lowercaseChars : "";
+            allowedChars += includeUppercase ? uppercaseChars : "";
+            allowedChars += includeNumbers ? numberChars : "";
+            allowedChars += includeSymbols ? symbolChars : "";
+
+            if (length <= 0) {
+                return `(password length must be at least 1)`;
+            }
+            if (allowedChars.length === 0) {
+                return `(At least 1 set of character needs to be selected)`;
+            }
+            
+            // Use window.crypto.getRandomValues() for better security if available
+            if (window.crypto && window.crypto.getRandomValues) {
+                const randomValues = new Uint32Array(length);
+                window.crypto.getRandomValues(randomValues);
+                
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = randomValues[i] % allowedChars.length;
+                    password += allowedChars[randomIndex];
+                }
+            } else {
+                // Fallback to Math.random() if crypto API is not available
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(Math.random() * allowedChars.length);
+                    password += allowedChars[randomIndex];
+                }
+            }
+
+            return password;
+        }
+        
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            const length = password.length;
+            
+            // Length contributes up to 50% of strength
+            strength += Math.min(50, (length / 20) * 50);
+            
+            // Character variety contributes the remaining 50%
+            const hasLowercase = /[a-z]/.test(password);
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSymbols = /[^a-zA-Z0-9]/.test(password);
+            
+            const varietyCount = [hasLowercase, hasUppercase, hasNumbers, hasSymbols]
+                .filter(Boolean).length;
+            
+            strength += (varietyCount / 4) * 50;
+            
+            // Determine color based on strength
+            let color;
+            if (strength < 30) {
+                color = '#e74c3c'; // Red
+            } else if (strength < 70) {
+                color = '#f39c12'; // Orange
+            } else {
+                color = '#2ecc71'; // Green
+            }
+            
+            return {
+                percentage: Math.min(100, Math.round(strength)),
+                color: color
+            };
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = message;
+            setTimeout(() => {
+                errorElement.textContent = '';
+            }, 3000);
+        }
+        
+        function savePassword(name, password) {
+            // Get existing passwords or initialize empty array
+            const savedPasswords = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+            
+            // Add new password with timestamp
+            savedPasswords.unshift({
+                name: name,
+                password: password,
+                date: new Date().toISOString()
+            });
+            
+            // Keep only the last 20 passwords
+            if (savedPasswords.length > 20) {
+                savedPasswords.length = 20;
+            }
+            
+            // Save back to localStorage
+            localStorage.setItem('passwordHistory', JSON.stringify(savedPasswords));
+        }
+        
+        function loadHistory() {
+            const historyList = document.getElementById('history-list');
+            const savedPasswords = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+            
+            if (savedPasswords.length === 0) {
+                historyList.innerHTML = '<div class="empty-history">No saved passwords yet</div>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            savedPasswords.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleString();
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <div class="history-name">${item.name}</div>
+                        <div class="history-password">••••••••</div>
+                        <div class="history-date">${formattedDate}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="copy-btn" data-index="${index}">Copy</button>
+                        <button class="show-btn" data-index="${index}">Show</button>
+                        <button class="delete-btn" data-index="${index}">Delete</button>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+            
+            // Add event listeners to history buttons
+            document.querySelectorAll('.history-actions .copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    const savedPasswords = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+                    navigator.clipboard.writeText(savedPasswords[index].password);
+                    
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+            
+            document.querySelectorAll('.history-actions .show-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    const savedPasswords = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+                    const passwordElement = this.closest('.history-item').querySelector('.history-password');
+                    
+                    if (passwordElement.textContent === '••••••••') {
+                        passwordElement.textContent = savedPasswords[index].password;
+                        this.textContent = 'Hide';
+                    } else {
+                        passwordElement.textContent = '••••••••';
+                        this.textContent = 'Show';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.history-actions .delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    const savedPasswords = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+                    
+                    savedPasswords.splice(index, 1);
+                    localStorage.setItem('passwordHistory', JSON.stringify(savedPasswords));
+                    loadHistory();
+                });
+            });
+        }
+    </script>
+</body>
+</html>
